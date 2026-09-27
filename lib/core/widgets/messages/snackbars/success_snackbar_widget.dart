@@ -1,9 +1,8 @@
 import 'package:neuro_app/core/widgets/messages/snackbars/snackbar_widget.dart';
 import 'package:flutter/material.dart';
-
 import '../../../resources/themes/extensions/success_colors.dart';
 
-showSuccessSnackbar({
+void showSuccessSnackbar({
   required BuildContext context,
   required String title,
   String? subtitle,
