@@ -109,100 +109,32 @@ class SettingView extends StatelessWidget {
               // Preferences Section Card
               Card(
                 margin: Margins.cardMargin,
-                child: Column(
-                  children: [
-                    SettingTileWidget(
-                      leadingIcon: Icon(
-                        Icons.info_outline,
-                        size: SizesResources.iconSettingsTileHeight,
+                child: BlocBuilder<AppThemeBloc, AppThemeState>(
+                  builder: (context, state) {
+                    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+                    return SettingTileWidget(
+                      leadingIcon: Image.asset(
+                        isDarkMode
+                            ? UIImagesResources.brightnessDarkUIIcon
+                            : UIImagesResources.brightnessLightUIIcon,
+                        width: SizesResources.iconSettingsTileHeight,
+                        height: SizesResources.iconSettingsTileHeight,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
-                      trailingIcon: Icons.chevron_right,
-                      title: context.l10n.settingsAboutUs,
+                      title:
+                          isDarkMode
+                              ? context.l10n.settingsSwitchToLightTheme
+                              : context.l10n.settingsSwitchToDarkTheme,
                       onTap: () {
-                        context.pushNamed(Routes.aboutUs.name);
-                      },
-                    ),
-                    Divider(
-                      height: 1,
-                      thickness: 1,
-
-                      indent: SizesResources.iconSettingsTileHeight * 2.5,
-                      endIndent: SpacesResources.s16,
-                    ),
-                    BlocBuilder<AppThemeBloc, AppThemeState>(
-                      builder: (context, state) {
-                        final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-                        return SettingTileWidget(
-                          leadingIcon: Image.asset(
-                            isDarkMode
-                                ? UIImagesResources.brightnessDarkUIIcon
-                                : UIImagesResources.brightnessLightUIIcon,
-                            width: SizesResources.iconSettingsTileHeight,
-                            height: SizesResources.iconSettingsTileHeight,
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        final bloc = context.read<AppThemeBloc>();
+                        bloc.add(
+                          ChangeAppThemeEvent(
+                            isDarkMode ? AppThemes.lightTheme : AppThemes.darkTheme,
                           ),
-                          title:
-                              isDarkMode
-                                  ? context.l10n.settingsSwitchToLightTheme
-                                  : context.l10n.settingsSwitchToDarkTheme,
-                          onTap: () {
-                            final bloc = context.read<AppThemeBloc>();
-                            bloc.add(
-                              ChangeAppThemeEvent(
-                                isDarkMode ? AppThemes.lightTheme : AppThemes.darkTheme,
-                              ),
-                            );
-                          },
                         );
                       },
-                    ),
-                  ],
-                ),
-              ),
-
-              SizedBox(height: SpacesResources.s6),
-
-              // Support Section
-              SettingsCardTitleWidget(title: context.l10n.settingsSupportTitle),
-
-              // Support Section Card
-              Card(
-                margin: Margins.cardMargin,
-                child: Column(
-                  children: [
-                    SettingTileWidget(
-                      leadingIcon: Icon(
-                        Icons.help_outline,
-                        size: SizesResources.iconSettingsTileHeight,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      trailingIcon: Icons.chevron_right,
-                      title: context.l10n.settingsHelpCenter,
-                      onTap: () {
-                        context.pushNamed(Routes.helpCenter.name);
-                      },
-                    ),
-                    Divider(
-                      height: 1,
-                      thickness: 1,
-
-                      indent: SizesResources.iconSettingsTileHeight * 2.5,
-                      endIndent: SpacesResources.s16,
-                    ),
-                    SettingTileWidget(
-                      leadingIcon: Icon(
-                        Icons.contact_support_outlined,
-                        size: SizesResources.iconSettingsTileHeight,
-                        color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      ),
-                      trailingIcon: Icons.chevron_right,
-                      title: context.l10n.settingsContactUs,
-                      onTap: () {
-                        context.pushNamed(Routes.contactUs.name);
-                      },
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ),
 
