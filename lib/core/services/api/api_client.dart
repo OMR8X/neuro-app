@@ -2,6 +2,7 @@ import 'package:neuro_app/core/services/api/supabase/supabase_settings.dart';
 import 'package:dio/dio.dart';
 import 'package:neuro_app/core/services/api/api_constants.dart';
 import 'package:neuro_app/core/services/api/dio_factory.dart';
+import 'package:neuro_app/core/services/api/interceptors/auth_interceptor.dart';
 import 'package:neuro_app/core/services/api/token_provider.dart';
 
 abstract class ApiClient {
@@ -11,6 +12,7 @@ abstract class ApiClient {
     Map<String, dynamic>? headers,
     Map<String, dynamic> queryParameters = const <String, dynamic>{},
     ResponseType? responseType,
+    Options? options,
     CancelToken? cancelToken,
   });
 
@@ -21,6 +23,7 @@ abstract class ApiClient {
     Map<String, dynamic>? headers,
     Map<String, dynamic> queryParameters = const <String, dynamic>{},
     ResponseType? responseType,
+    Options? options,
     Function(int, int)? onSendProgress,
     CancelToken? cancelToken,
   });
@@ -32,6 +35,7 @@ abstract class ApiClient {
     Map<String, dynamic>? headers,
     Map<String, dynamic> queryParameters = const <String, dynamic>{},
     ResponseType? responseType,
+    Options? options,
     CancelToken? cancelToken,
   });
 
@@ -42,6 +46,7 @@ abstract class ApiClient {
     Map<String, dynamic>? headers,
     Map<String, dynamic> queryParameters = const <String, dynamic>{},
     ResponseType? responseType,
+    Options? options,
     CancelToken? cancelToken,
   });
 }
@@ -52,8 +57,12 @@ class DioClient implements ApiClient {
   late final Map<String, String> defaultHeaders;
   late final BaseOptions options;
   late final TokenProvider _tokenProvider;
+  late final Dio _dio;
   //
-  DioClient({TokenProvider? tokenProvider}) {
+  DioClient({
+    TokenProvider? tokenProvider,
+    TokenRefreshCallback? onRefreshToken,
+  }) {
     //
     _tokenProvider = tokenProvider ?? SupabaseTokenProvider();
     //
@@ -76,6 +85,10 @@ class DioClient implements ApiClient {
         return true;
       },
     );
+
+    _dio = _dioFactory();
+    _dio.options = options;
+    _dio.interceptors.add(AuthInterceptor(dio: _dio, onRefreshToken: onRefreshToken));
   }
   //
 
@@ -85,15 +98,20 @@ class DioClient implements ApiClient {
     Map<String, dynamic>? headers,
     Map<String, dynamic> queryParameters = const <String, dynamic>{},
     ResponseType? responseType,
+    Options? options,
     CancelToken? cancelToken,
   }) async {
-    final Dio dio = await _getDio(
+    final mergedOptions = await _buildOptions(
       headers: headers,
-      params: queryParameters,
       responseType: responseType,
+      baseOptions: options,
     );
-    final Future<Response> response = dio.get(uri);
-    return response;
+    return _dio.get(
+      uri,
+      queryParameters: queryParameters,
+      options: mergedOptions,
+      cancelToken: cancelToken,
+    );
   }
 
   @override
@@ -103,21 +121,23 @@ class DioClient implements ApiClient {
     Map<String, dynamic>? headers,
     Map<String, dynamic> queryParameters = const <String, dynamic>{},
     ResponseType? responseType,
+    Options? options,
     Function(int, int)? onSendProgress,
     CancelToken? cancelToken,
   }) async {
-    final Dio dio = await _getDio(
+    final mergedOptions = await _buildOptions(
       headers: headers,
-      params: queryParameters,
       responseType: responseType,
+      baseOptions: options,
     );
-    final Future<Response> response = dio.post(
+    return _dio.post(
       uri,
       data: body,
+      queryParameters: queryParameters,
+      options: mergedOptions,
       onSendProgress: onSendProgress,
       cancelToken: cancelToken,
     );
-    return response;
   }
 
   @override
@@ -127,15 +147,21 @@ class DioClient implements ApiClient {
     Map<String, dynamic>? headers,
     Map<String, dynamic> queryParameters = const <String, dynamic>{},
     ResponseType? responseType,
+    Options? options,
     CancelToken? cancelToken,
   }) async {
-    final Dio dio = await _getDio(
+    final mergedOptions = await _buildOptions(
       headers: headers,
-      params: queryParameters,
       responseType: responseType,
+      baseOptions: options,
     );
-    final Future<Response> response = dio.put(uri, data: body);
-    return response;
+    return _dio.put(
+      uri,
+      data: body,
+      queryParameters: queryParameters,
+      options: mergedOptions,
+      cancelToken: cancelToken,
+    );
   }
 
   @override
@@ -145,25 +171,28 @@ class DioClient implements ApiClient {
     Map<String, dynamic>? headers,
     Map<String, dynamic> queryParameters = const <String, dynamic>{},
     ResponseType? responseType,
+    Options? options,
     CancelToken? cancelToken,
   }) async {
-    final Dio dio = await _getDio(
+    final mergedOptions = await _buildOptions(
       headers: headers,
-      params: queryParameters,
       responseType: responseType,
+      baseOptions: options,
     );
-    final Future<Response> response = dio.delete(uri, data: body);
-    return response;
+    return _dio.delete(
+      uri,
+      data: body,
+      queryParameters: queryParameters,
+      options: mergedOptions,
+      cancelToken: cancelToken,
+    );
   }
 
-  Future<Dio> _getDio({
+  Future<Options> _buildOptions({
     Map<String, dynamic>? headers,
-    Map<String, dynamic>? params,
     ResponseType? responseType,
+    Options? baseOptions,
   }) async {
-    final Dio dio = _dioFactory();
-    //
-    // Start with defaultHeaders that always contain apikey
     final Map<String, dynamic> effectiveHeaders = <String, dynamic>{...defaultHeaders};
 
     if (headers != null) {
@@ -173,19 +202,19 @@ class DioClient implements ApiClient {
     final String? token = await _tokenProvider.getToken();
 
     if (token != null && token.isNotEmpty) {
-      effectiveHeaders[ApiHeaders.headerAuthorizationKey] = 'Bearer $token';
+      effectiveHeaders[ApiHeaders.headerAuthorizationKey] =
+          '${ApiHeaders.headerAuthorizationBearer} $token';
     } else {
-      // keep only apikey for anon access — don't set Authorization to anon
       effectiveHeaders.remove(ApiHeaders.headerAuthorizationKey);
     }
 
-    options.headers = effectiveHeaders;
-    options.headers[ApiHeaders.headerAcceptKey] = ApiHeaders.headerContentTypeJson;
+    if (baseOptions?.headers != null) {
+      effectiveHeaders.addAll(baseOptions!.headers!);
+    }
 
-    options.queryParameters = params ?? <String, dynamic>{};
-
-    dio.options = options.copyWith(responseType: responseType);
-
-    return dio;
+    return (baseOptions ?? Options()).copyWith(
+      headers: effectiveHeaders,
+      responseType: responseType ?? baseOptions?.responseType,
+    );
   }
 }
