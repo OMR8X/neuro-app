@@ -1,4 +1,5 @@
 import 'package:neuro_app/core/extensions/build_context_l10n.dart';
+import 'package:neuro_app/core/resources/errors/error_mapper.dart';
 import 'package:neuro_app/core/injector/app_injection.dart';
 import 'package:neuro_app/core/resources/styles/sizes_resources.dart';
 import 'package:neuro_app/core/resources/styles/spacing_resources.dart';
@@ -49,18 +50,25 @@ class _QuestionsSheetBuilderState extends State<QuestionsSheetBuilder> {
   }
 
   Future<void> _fetchQuestions() async {
-    //
     setState(() => _isLoading = true);
-    //
-    final response = await sl<GetResultQuestionsDetailsUsecase>().call(
-      GetResultQuestionsDetailsRequest(resultId: widget.resultId),
-    );
-    //
-    response.fold((l) => _failure = l, (r) {
-      _failure = null;
-      _questions = r.resultQuestions;
-    });
-    setState(() => _isLoading = false);
+    try {
+      final response = await sl<GetResultQuestionsDetailsUsecase>().call(
+        GetResultQuestionsDetailsRequest(resultId: widget.resultId),
+      );
+      response.fold(
+        (l) => _failure = l,
+        (r) {
+          _failure = null;
+          _questions = r.resultQuestions;
+        },
+      );
+    } catch (e) {
+      _failure = errorToFailure(e);
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override

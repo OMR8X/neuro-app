@@ -8,20 +8,24 @@ import 'package:flutter/material.dart';
 class QuizzingAnswerTopControls extends StatelessWidget {
   const QuizzingAnswerTopControls({
     super.key,
-    required this.timeLeft,
+    required this.elapsedTime,
     required this.current,
     required this.total,
     required this.onClose,
   });
 
-  final Duration timeLeft;
+  final Duration elapsedTime;
   final int current;
   final int total;
   final VoidCallback onClose;
 
   String _formatDuration(Duration duration) {
+    final hours = duration.inHours;
     final minutes = duration.inMinutes.remainder(60).toString().padLeft(2, '0');
     final seconds = duration.inSeconds.remainder(60).toString().padLeft(2, '0');
+    if (hours > 0) {
+      return '$hours:$minutes:$seconds';
+    }
     return '$minutes:$seconds';
   }
 
@@ -73,7 +77,7 @@ class QuizzingAnswerTopControls extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                _formatDuration(timeLeft),
+                _formatDuration(elapsedTime),
                 style: TextStylesResources.cardMediumTitle.copyWith(
                   fontWeight: FontWeightResources.regular,
                 ),

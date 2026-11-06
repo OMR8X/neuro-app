@@ -6,18 +6,20 @@ import '../../../core/resources/styles/spacing_resources.dart';
 
 /// A compact, themed card showing time taken vs full time with an icon and progress.
 class TimeTakenCard extends StatelessWidget {
-  const TimeTakenCard({super.key, required this.timeTaken, required this.fullTime});
+  const TimeTakenCard({super.key, required this.timeTaken, this.fullTime});
 
   final Duration timeTaken;
-  final Duration fullTime;
+  final Duration? fullTime;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final double progress =
-        (fullTime.inMilliseconds > 0) ? timeTaken.inMilliseconds / fullTime.inMilliseconds : 0.0;
+    final Duration? limit = fullTime;
+    final double progress = (limit != null && limit.inMilliseconds > 0)
+        ? timeTaken.inMilliseconds / limit.inMilliseconds
+        : 0.0;
     final String timeTakenLabel = _formatDuration(timeTaken);
-    final String fullTimeLabel = _formatDuration(fullTime);
+    final String? fullTimeLabel = limit != null ? _formatDuration(limit) : null;
 
     return Card(
       margin: Margins.cardMargin,
@@ -60,28 +62,32 @@ class TimeTakenCard extends StatelessWidget {
                             ) ??
                             theme.textTheme.bodyMedium,
                       ),
-                      const SizedBox(width: 6),
-                      Text(
-                        '/ $fullTimeLabel',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurfaceVariant,
+                      if (fullTimeLabel != null) ...[
+                        const SizedBox(width: 6),
+                        Text(
+                          '/ $fullTimeLabel',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
-                  const SizedBox(height: 8),
-                  // Progress indicator with rounded ends
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(6.0),
-                    child: LinearProgressIndicator(
-                      value: progress.clamp(0.0, 1.0),
-                      minHeight: 6,
-                      backgroundColor: theme.colorScheme.primaryContainer,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        theme.colorScheme.onSurface.lighter(0.4),
+                  if (fullTime != null) ...[
+                    const SizedBox(height: 8),
+                    // Progress indicator with rounded ends
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(6.0),
+                      child: LinearProgressIndicator(
+                        value: progress.clamp(0.0, 1.0),
+                        minHeight: 6,
+                        backgroundColor: theme.colorScheme.primaryContainer,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          theme.colorScheme.onSurface.lighter(0.4),
+                        ),
                       ),
                     ),
-                  ),
+                  ],
                 ],
               ),
             ),

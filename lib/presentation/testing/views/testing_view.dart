@@ -29,7 +29,6 @@ class TestingView extends StatelessWidget {
               QuizzingBloc()..add(
                 InitializeQuiz(
                   questions: questions.cast(),
-                  timeLimit: arguments?.timeLimit ?? 30,
                   lessonId: arguments?.lessonIds?.length == 1 ? arguments!.lessonIds!.first : null,
                   testMode: testMode,
                 ),

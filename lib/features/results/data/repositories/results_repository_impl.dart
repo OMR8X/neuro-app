@@ -70,7 +70,7 @@ class ResultsRepositoryImpl implements ResultsRepository {
     try {
       final result = await remoteDataSource.getResultQuestionsDetails(request);
       return Right(result);
-    } on Exception catch (e) {
+    } catch (e) {
       return Left(errorToFailure(e));
     }
   }
@@ -82,7 +82,7 @@ class ResultsRepositoryImpl implements ResultsRepository {
     try {
       final result = await remoteDataSource.getAnswerEvaluations(request);
       return Right(result);
-    } on Exception catch (e) {
+    } catch (e) {
       return Left(errorToFailure(e));
     }
   }

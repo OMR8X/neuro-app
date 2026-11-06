@@ -71,7 +71,6 @@ class TestModeSettingsView extends StatelessWidget {
                 Routes.quizzing.name,
                 extra: QuizzingArguments(
                   questions: state.questions,
-                  timeLimit: null,
                   testMode: state.testOptions.selectedMode,
                   lessonIds: state.testOptions.selectedLessonsIds,
                 ),

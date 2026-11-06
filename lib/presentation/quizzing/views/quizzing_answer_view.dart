@@ -47,13 +47,13 @@ class QuizzingAnswerView extends StatelessWidget {
               BlocBuilder<QuizzingBloc, QuizzingState>(
                 buildWhen: (previous, current) {
                   if (previous is QuizzingAnswerQuestion && current is QuizzingAnswerQuestion) {
-                    return previous.timeLeft != current.timeLeft;
+                    return previous.elapsedTime != current.elapsedTime;
                   }
                   return false;
                 },
                 builder: (context, state) {
                   return QuizzingAnswerTopControls(
-                    timeLeft: state is QuizzingAnswerQuestion ? state.timeLeft : Duration.zero,
+                    elapsedTime: state is QuizzingAnswerQuestion ? state.elapsedTime : Duration.zero,
                     current: state is QuizzingAnswerQuestion ? state.currentQuestionIndex + 1 : 0,
                     total: state is QuizzingAnswerQuestion ? state.totalQuestions : 0,
                     onClose: onClose,

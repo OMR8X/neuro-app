@@ -15,7 +15,7 @@ final class QuizzingAnswerQuestion extends QuizzingState {
   final Question currentQuestion;
   final int currentQuestionIndex;
   final int totalQuestions;
-  final Duration timeLeft;
+  final Duration elapsedTime;
   final bool canGoNext;
   final bool canGoPrevious;
   final List<QuestionAnswer> selectedAnswers;
@@ -24,7 +24,7 @@ final class QuizzingAnswerQuestion extends QuizzingState {
     required this.currentQuestion,
     required this.currentQuestionIndex,
     required this.totalQuestions,
-    required this.timeLeft,
+    required this.elapsedTime,
     required this.canGoNext,
     required this.canGoPrevious,
     this.selectedAnswers = const [],
@@ -34,7 +34,7 @@ final class QuizzingAnswerQuestion extends QuizzingState {
     Question? currentQuestion,
     int? currentQuestionIndex,
     int? totalQuestions,
-    Duration? timeLeft,
+    Duration? elapsedTime,
     bool? canGoNext,
     bool? canGoPrevious,
     List<QuestionAnswer>? selectedAnswers,
@@ -43,7 +43,7 @@ final class QuizzingAnswerQuestion extends QuizzingState {
       currentQuestion: currentQuestion ?? this.currentQuestion,
       currentQuestionIndex: currentQuestionIndex ?? this.currentQuestionIndex,
       totalQuestions: totalQuestions ?? this.totalQuestions,
-      timeLeft: timeLeft ?? this.timeLeft,
+      elapsedTime: elapsedTime ?? this.elapsedTime,
       canGoNext: canGoNext ?? this.canGoNext,
       canGoPrevious: canGoPrevious ?? this.canGoPrevious,
       selectedAnswers: selectedAnswers ?? this.selectedAnswers,
@@ -55,7 +55,7 @@ final class QuizzingAnswerQuestion extends QuizzingState {
     currentQuestion,
     currentQuestionIndex,
     totalQuestions,
-    timeLeft,
+    elapsedTime,
     canGoNext,
     canGoPrevious,
     selectedAnswers,

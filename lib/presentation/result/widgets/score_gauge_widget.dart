@@ -14,7 +14,6 @@ class ScoreGauge extends StatelessWidget {
     required this.wrongAnswers,
     required this.skippedAnswers,
     required this.timeTaken,
-    required this.fullTime,
   });
 
   final double percentage;
@@ -23,11 +22,9 @@ class ScoreGauge extends StatelessWidget {
   final int skippedAnswers;
   final String displayText;
   final Duration timeTaken;
-  final Duration fullTime;
   @override
   Widget build(BuildContext context) {
     final String timeTakenLabel = _formatDuration(timeTaken);
-    final String fullTimeLabel = _formatDuration(fullTime);
     final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.only(top: SpacesResources.s20),
@@ -66,27 +63,9 @@ class ScoreGauge extends StatelessWidget {
                             fontWeight: FontWeightResources.medium,
                           ),
                         ),
-                        TextSpan(
-                          text: ' / ',
-                          style: TextStylesResources.subTitle.copyWith(
-                            fontSize: FontSizeResources.s12,
-                            color: theme.colorScheme.onSurfaceVariant,
-                            fontWeight: FontWeightResources.bold,
-                          ),
-                        ),
-
-                        TextSpan(
-                          text: fullTimeLabel,
-                          style: TextStylesResources.subTitle.copyWith(
-                            fontSize: FontSizeResources.s12,
-                            color: theme.colorScheme.onSurfaceVariant,
-                            fontWeight: FontWeightResources.regular,
-                          ),
-                        ),
-
                         WidgetSpan(
                           child: Padding(
-                            padding: const EdgeInsets.only(bottom: 1.5, right: 2),
+                            padding: const EdgeInsets.only(bottom: 1.5, right: 4),
                             child: Image.asset(
                               UIImagesResources.timerUIIcon,
                               height: FontSizeResources.s12,

@@ -140,11 +140,10 @@ class TestModeSettingsArguments {
 
 class QuizzingArguments {
   final List<Question>? questions;
-  final int? timeLimit;
   final TestMode? testMode;
   final List<int>? lessonIds;
 
-  const QuizzingArguments({this.questions, this.timeLimit, this.testMode, this.lessonIds});
+  const QuizzingArguments({this.questions, this.testMode, this.lessonIds});
 }
 
 class SearchViewArguments {

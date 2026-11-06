@@ -8,7 +8,6 @@ class SignInResponse {
   final UserData user;
 
   SignInResponse({required this.message, required this.token, required this.user});
-  @override
   factory SignInResponse.fromResponse(ApiResponse response) {
     return SignInResponse(
       message: response.message,

@@ -38,12 +38,21 @@ class _OptionTextualFieldWidgetState extends State<OptionTextualFieldWidget> {
     super.initState();
     didAnswer = widget.didAnswer && widget.questionAnswer?.answerText != null;
     reviewMode = widget.testMode == null;
-    if ((widget.questionAnswer?.answerText?.isEmpty ?? true)) {
-      controller = TextEditingController(text: widget.option.content);
-    } else {
-      controller = TextEditingController(text: widget.questionAnswer?.answerText);
-    }
+    controller = TextEditingController(text: widget.questionAnswer?.answerText ?? '');
     focusNode = FocusNode();
+  }
+
+  @override
+  void didUpdateWidget(covariant OptionTextualFieldWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    didAnswer = widget.didAnswer && widget.questionAnswer?.answerText != null;
+    reviewMode = widget.testMode == null;
+    if (oldWidget.questionAnswer?.answerText != widget.questionAnswer?.answerText) {
+      final newText = widget.questionAnswer?.answerText ?? '';
+      if (controller.text != newText) {
+        controller.text = newText;
+      }
+    }
   }
 
   @override

@@ -21,8 +21,7 @@ if (keystorePropertiesFile.exists()) {
 android {
     namespace = "com.neuro.bac"
     compileSdk = 36
-    // ndkVersion = "29.0.14206765"
-    ndkVersion = "27.0.12077973"
+    ndkVersion = "28.0.13004108"
 
     compileOptions {
         isCoreLibraryDesugaringEnabled = true

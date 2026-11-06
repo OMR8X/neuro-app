@@ -122,7 +122,6 @@ class _ExploreResultDetailsView extends StatelessWidget {
               wrongAnswers: state.response!.result.wrongAnswers,
               skippedAnswers: 0,
               timeTaken: Duration(seconds: state.response!.result.durationSeconds),
-              fullTime: Duration(seconds: state.response!.result.durationSeconds * 2),
             ),
           ),
           SizedBox(height: SpacesResources.s10),

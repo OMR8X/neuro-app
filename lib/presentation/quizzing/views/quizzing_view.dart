@@ -32,7 +32,6 @@ class QuizzingView extends StatelessWidget {
               QuizzingBloc()..add(
                 InitializeQuiz(
                   questions: questions.cast(),
-                  timeLimit: arguments?.timeLimit ?? 30,
                   lessonId:
                       arguments?.lessonIds?.length == 1 ? arguments!.lessonIds!.firstOrNull : null,
                   testMode: arguments?.testMode ?? TestMode.exploring,
@@ -120,7 +119,7 @@ class _QuizzingLoadingView extends StatelessWidget {
           currentQuestion: Question.mock(),
           currentQuestionIndex: 0,
           totalQuestions: 0,
-          timeLeft: Duration.zero,
+          elapsedTime: Duration.zero,
           canGoNext: false,
           canGoPrevious: false,
         ),

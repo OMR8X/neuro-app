@@ -4,24 +4,22 @@ sealed class QuizzingEvent extends Equatable {
   const QuizzingEvent();
 
   @override
-  List<Object> get props => [];
+  List<Object?> get props => [];
 }
 
 class InitializeQuiz extends QuizzingEvent {
   final TestMode testMode;
   final int? lessonId;
   final List<Question> questions;
-  final int timeLimit; // in minutes
 
   const InitializeQuiz({
     required this.questions,
-    required this.timeLimit,
     required this.lessonId,
     required this.testMode,
   });
 
   @override
-  List<Object> get props => [questions, timeLimit, testMode];
+  List<Object?> get props => [questions, testMode, lessonId];
 }
 
 class UpdateTextualQuestionAnswersEvent extends QuizzingEvent {

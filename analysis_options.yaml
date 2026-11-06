@@ -1,6 +1,14 @@
 include: package:flutter_lints/flutter.yaml
 formatter:
   trailing_commas: preserve
+
+analyzer:
+  exclude:
+    - build/**
+    - "**/*.g.dart"
+    - android/**
+    - ios/**
+    - web/**
 # This file configures the analyzer, which statically analyzes Dart code to
 # check for errors, warnings, and lints.
 #

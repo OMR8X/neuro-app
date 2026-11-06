@@ -39,8 +39,7 @@ class QuizzingBloc extends Bloc<QuizzingEvent, QuizzingState> {
   late DateTime _startTime;
   late int? _lessonId;
   late List<Question> _questions;
-  late Duration _timeLeft;
-  late Duration _initialTimeLimit;
+  Duration _elapsedTime = Duration.zero;
   late List<QuestionAnswer> _questionsAnswers;
 
   void _onInitializeQuiz(InitializeQuiz event, Emitter<QuizzingState> emit) {
@@ -54,8 +53,7 @@ class QuizzingBloc extends Bloc<QuizzingEvent, QuizzingState> {
     testMode = event.testMode;
     _questionsAnswers = [];
     _startTime = DateTime.now();
-    _initialTimeLimit = Duration(minutes: event.timeLimit);
-    _timeLeft = _initialTimeLimit;
+    _elapsedTime = Duration.zero;
 
     /// Start timer
     _startTimer();
@@ -66,7 +64,7 @@ class QuizzingBloc extends Bloc<QuizzingEvent, QuizzingState> {
         currentQuestion: _questions[0],
         currentQuestionIndex: 0,
         totalQuestions: _questions.length,
-        timeLeft: _timeLeft,
+        elapsedTime: _elapsedTime,
         canGoNext: _questions.length > 1,
         canGoPrevious: false,
         selectedAnswers: _questionsAnswers.where((a) => a.questionId == _questions[0].id).toList(),
@@ -82,9 +80,6 @@ class QuizzingBloc extends Bloc<QuizzingEvent, QuizzingState> {
       /// Get the current state
       final currentState = state as QuizzingAnswerQuestion;
       final answers = event.answers;
-
-      ///
-      if (currentState.timeLeft.inSeconds <= 0) return;
 
       /// Store the selected answer
       _questionsAnswers.removeWhere((e) {
@@ -113,9 +108,6 @@ class QuizzingBloc extends Bloc<QuizzingEvent, QuizzingState> {
       final currentState = state as QuizzingAnswerQuestion;
       final answers = event.answers;
 
-      ///
-      if (currentState.timeLeft.inSeconds <= 0) return;
-
       /// Store the selected answer
       _questionsAnswers
         ..removeWhere((e) {
@@ -143,9 +135,6 @@ class QuizzingBloc extends Bloc<QuizzingEvent, QuizzingState> {
       /// Get the current state
       final currentState = state as QuizzingAnswerQuestion;
       final answers = event.answers;
-
-      ///
-      if (currentState.timeLeft.inSeconds <= 0) return;
 
       /// Store the selected answer
       _questionsAnswers.removeWhere((e) {
@@ -194,12 +183,6 @@ class QuizzingBloc extends Bloc<QuizzingEvent, QuizzingState> {
     if (state is QuizzingAnswerQuestion) {
       /// Get the current state
       final currentState = state as QuizzingAnswerQuestion;
-
-      ///
-      if (currentState.timeLeft.inSeconds <= 0) {
-        add(const SubmitQuiz());
-        return;
-      }
 
       final previousIndex = currentState.currentQuestionIndex - 1;
 
@@ -257,7 +240,7 @@ class QuizzingBloc extends Bloc<QuizzingEvent, QuizzingState> {
   void _onUpdateState(UpdateState event, Emitter<QuizzingState> emit) {
     if (state is QuizzingAnswerQuestion) {
       final currentState = state as QuizzingAnswerQuestion;
-      emit(currentState.copyWith(timeLeft: _timeLeft));
+      emit(currentState.copyWith(elapsedTime: _elapsedTime));
     }
   }
 
@@ -266,16 +249,11 @@ class QuizzingBloc extends Bloc<QuizzingEvent, QuizzingState> {
   }
 
   void _startTimer() {
-    final Duration interval = const Duration(milliseconds: 100);
+    const Duration interval = Duration(seconds: 1);
     _timer = Timer.periodic(interval, (timer) {
       if (state is QuizzingAnswerQuestion) {
-        _timeLeft = _timeLeft - interval;
-        if (_timeLeft.inSeconds <= 0) {
-          _stopTimer();
-          add(const SubmitQuiz());
-        } else {
-          add(UpdateState());
-        }
+        _elapsedTime = DateTime.now().difference(_startTime);
+        add(UpdateState());
       }
     });
   }
